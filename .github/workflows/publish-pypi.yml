@@ -1,0 +1,48 @@
+   name: Publish the Python client to PyPI
+
+   # Runs when a GitHub release is published (for example tag v0.1.0).
+   # Bump "version" in python/pyproject.toml (and python/listriver/__init__.py) before each new release:
+   # PyPI never accepts the same version twice.
+   on:
+     release:
+       types: [published]
+
+   jobs:
+     build:
+       name: Test and build
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v6
+           with:
+             persist-credentials: false
+         - uses: actions/setup-python@v6
+           with:
+             python-version: "3.x"
+         - name: Run the tests
+           working-directory: python
+           run: |
+             python -m pip install --upgrade pip requests pytest build
+             python -m pytest -q tests
+         - name: Build the package
+           working-directory: python
+           run: python -m build
+         - uses: actions/upload-artifact@v5
+           with:
+             name: python-package-distributions
+             path: python/dist/
+
+     publish:
+       name: Publish to PyPI
+       needs: build
+       runs-on: ubuntu-latest
+       environment:
+         name: pypi
+         url: https://pypi.org/p/listriver
+       permissions:
+         id-token: write   # trusted publishing: PyPI trusts this repo and workflow, so no password or token is stored
+       steps:
+         - uses: actions/download-artifact@v6
+           with:
+             name: python-package-distributions
+             path: dist/
+         - uses: pypa/gh-action-pypi-publish@release/v1
