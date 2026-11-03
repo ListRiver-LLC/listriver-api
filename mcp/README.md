@@ -51,6 +51,21 @@ claude mcp add listriver -e LISTRIVER_API_KEY=lr_key_... -- uvx listriver-mcp
 **Other MCP clients:** run `uvx listriver-mcp` (stdio) with `LISTRIVER_API_KEY` in the environment. Or `pip install listriver-mcp`
 and run `listriver-mcp`.
 
+## Source
+
+The server is [`listriver_mcp/server.py`](listriver_mcp/server.py) in this folder (Python, built on the official MCP Python SDK,
+using the [`listriver`](../python/) client from this repository). Tests: [`tests/test_server.py`](tests/test_server.py).
+
+Run from a clone of the repository:
+
+```bash
+pip install ./python ./mcp
+LISTRIVER_API_KEY=lr_key_... listriver-mcp
+```
+
+or build the [Dockerfile](../Dockerfile) at the repository root: `docker build -t listriver-mcp .` then
+`docker run -i --rm -e LISTRIVER_API_KEY=lr_key_... listriver-mcp`.
+
 ## Notes
 
 - Every business returned counts against your records each time it is returned; repeated or overlapping searches count
