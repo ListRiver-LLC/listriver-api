@@ -1,0 +1,16 @@
+   __pycache__/
+   *.py[cod]
+   *.egg-info/
+   dist/
+   build/
+   .venv/
+   venv/
+   .env
+   node_modules/
+   *.csv
+   !sample-data/*.csv
+   listriver-feed.json
+   records.jsonl
+   .pytest_cache/
+   .DS_Store
+   Thumbs.db
