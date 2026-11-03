@@ -8,7 +8,7 @@ formation month, and whether a phone or email is on file.
 - **Full documentation** with a live "Try it" panel and examples in cURL, Python, JavaScript, C# and PHP: [listriver.com/api-docs](https://listriver.com/api-docs)
 - **Python client:** `pip install listriver` ([source](python/))
 - **OpenAPI 3 spec:** [openapi.yaml](openapi.yaml) (import into Postman, Insomnia, Swagger UI or an AI agent)
-- **MCP server for Claude and other AI assistants:** `uvx listriver-mcp` ([setup](mcp/))
+- **MCP server** for Claude and other AI assistants, source in [`mcp/`](mcp/): `uvx listriver-mcp`
 
 Typical uses: lead lists of brand-new businesses (formed this month), CRM enrichment, sales territory research,
 KYB and business verification, market sizing, and B2B prospecting by industry and place.
@@ -73,11 +73,21 @@ More: [examples/](examples/) (Python, JavaScript, curl) and the [recipes](https:
 
 ---
 
-## Use it from Claude and other AI assistants (MCP)
+## MCP server (source in this repo)
 
-The [ListRiver MCP server](mcp/) lets an assistant count and search businesses for you: "how many LLCs were formed in
-Miami-Dade in the last 3 months with a phone number?" Counting is free; the assistant is told to count first and to fetch
-only what you need. For Claude Desktop, add this to its config (Settings > Developer > Edit Config):
+This repository contains a **Model Context Protocol server** for ListRiver, written in Python:
+[`mcp/listriver_mcp/server.py`](mcp/listriver_mcp/server.py) (package [`mcp/`](mcp/), tests in [`mcp/tests/`](mcp/tests/),
+MIT license). It runs over stdio and gives AI assistants (Claude Desktop, Claude Code, Cursor and other MCP clients) three tools:
+
+| Tool | What it does | Cost |
+|---|---|---|
+| `list_states` | States covered and their record counts | free |
+| `count_businesses` | How many businesses match a search (state, city, county, ZIP, NAICS, entity type, formation month, phone/email on file) | free |
+| `search_businesses` | The matching businesses, 25 by default and up to 100 per call, with a cursor for more | counts against your records |
+
+The server tells the assistant to count first and to fetch only what you need.
+
+**Install from PyPI** (published from this repo's `mcp/` folder) and add it to Claude Desktop (Settings > Developer > Edit Config):
 
 ```json
 {
@@ -90,6 +100,20 @@ only what you need. For Claude Desktop, add this to its config (Settings > Devel
   }
 }
 ```
+
+**Or run it from source:**
+
+```bash
+git clone https://github.com/ListRiver-LLC/listriver-api && cd listriver-api
+pip install ./python ./mcp
+LISTRIVER_API_KEY=lr_key_... listriver-mcp
+
+# or with Docker, using the Dockerfile in this repo
+docker build -t listriver-mcp .
+docker run -i --rm -e LISTRIVER_API_KEY=lr_key_... listriver-mcp
+```
+
+Setup for other clients: [mcp/README.md](mcp/). Listed in the official MCP Registry as `io.github.ListRiver-LLC/listriver`.
 
 ---
 
