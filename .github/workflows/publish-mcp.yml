@@ -1,0 +1,85 @@
+   name: Publish the MCP server (PyPI + MCP Registry)
+
+   # Runs when a GitHub release with a tag like mcp-v0.1.0 is published.
+   # Before each release, set the same version in mcp/pyproject.toml, mcp/listriver_mcp/__init__.py,
+   # mcp/listriver_mcp/server.py (version=) and both "version" fields in mcp/server.json.
+   on:
+     release:
+       types: [published]
+
+   jobs:
+     build:
+       name: Test and build
+       if: startsWith(github.event.release.tag_name, 'mcp-v')
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v6
+           with:
+             persist-credentials: false
+         - uses: actions/setup-python@v6
+           with:
+             python-version: "3.12"
+         - name: Check the tag matches server.json
+           working-directory: mcp
+           run: |
+             want="mcp-v$(python -c "import json;print(json.load(open('server.json'))['version'])")"
+             test "$want" = "${{ github.event.release.tag_name }}" || { echo "Tag ${{ github.event.release.tag_name }} doesn't match server.json ($want)"; exit 1; }
+         - name: Run the tests
+           working-directory: mcp
+           run: |
+             python -m pip install --upgrade pip build pytest
+             python -m pip install -e ../python -e .
+             python -m pytest -q tests
+         - name: Build the package
+           working-directory: mcp
+           run: python -m build
+         - uses: actions/upload-artifact@v5
+           with:
+             name: mcp-package-distributions
+             path: mcp/dist/
+
+     publish-pypi:
+       name: Publish listriver-mcp to PyPI
+       needs: build
+       runs-on: ubuntu-latest
+       environment:
+         name: pypi
+         url: https://pypi.org/p/listriver-mcp
+       permissions:
+         id-token: write   # trusted publishing
+       steps:
+         - uses: actions/download-artifact@v6
+           with:
+             name: mcp-package-distributions
+             path: dist/
+         - uses: pypa/gh-action-pypi-publish@release/v1
+
+     publish-registry:
+       name: List it in the MCP Registry
+       needs: publish-pypi
+       runs-on: ubuntu-latest
+       permissions:
+         id-token: write   # GitHub OIDC login: grants the io.github.ListRiver-LLC/ namespace, no stored secret
+         contents: read
+       steps:
+         - uses: actions/checkout@v6
+           with:
+             persist-credentials: false
+         - name: Install mcp-publisher
+           run: |
+             curl -sSL https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz | tar xz mcp-publisher
+         - name: Wait for the new version on PyPI
+           working-directory: mcp
+           run: |
+             v=$(python3 -c "import json;print(json.load(open('server.json'))['version'])")
+             for i in $(seq 1 30); do
+               curl -sf "https://pypi.org/pypi/listriver-mcp/$v/json" > /dev/null && exit 0
+               sleep 10
+             done
+             echo "listriver-mcp $v did not appear on PyPI"; exit 1
+         - name: Validate server.json
+           run: ./mcp-publisher validate mcp/server.json
+         - name: Log in to the MCP Registry
+           run: ./mcp-publisher login github-oidc
+         - name: Publish to the MCP Registry
+           run: ./mcp-publisher publish mcp/server.json
