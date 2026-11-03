@@ -1,0 +1,32 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ListRiver-LLC/listriver",
+  "title": "ListRiver",
+  "description": "Search new and active U.S. businesses from state registries: new LLCs by state, city, ZIP, NAICS.",
+  "websiteUrl": "https://listriver.com/api-docs",
+  "repository": {
+    "url": "https://github.com/ListRiver-LLC/listriver-api",
+    "source": "github",
+    "subfolder": "mcp"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "listriver-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "LISTRIVER_API_KEY",
+          "description": "Your ListRiver API key (free, 500 records a month: https://listriver.com/Account/ApiSignUp.aspx)",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}

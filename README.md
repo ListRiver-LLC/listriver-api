@@ -8,6 +8,7 @@ formation month, and whether a phone or email is on file.
 - **Full documentation** with a live "Try it" panel and examples in cURL, Python, JavaScript, C# and PHP: [listriver.com/api-docs](https://listriver.com/api-docs)
 - **Python client:** `pip install listriver` ([source](python/))
 - **OpenAPI 3 spec:** [openapi.yaml](openapi.yaml) (import into Postman, Insomnia, Swagger UI or an AI agent)
+- **MCP server for Claude and other AI assistants:** `uvx listriver-mcp` ([setup](mcp/))
 
 Typical uses: lead lists of brand-new businesses (formed this month), CRM enrichment, sales territory research,
 KYB and business verification, market sizing, and B2B prospecting by industry and place.
@@ -69,6 +70,26 @@ for business in lr.records(**search, max_records=100):
 ```
 
 More: [examples/](examples/) (Python, JavaScript, curl) and the [recipes](https://listriver.com/api-docs#recipes) (also C# and PHP).
+
+---
+
+## Use it from Claude and other AI assistants (MCP)
+
+The [ListRiver MCP server](mcp/) lets an assistant count and search businesses for you: "how many LLCs were formed in
+Miami-Dade in the last 3 months with a phone number?" Counting is free; the assistant is told to count first and to fetch
+only what you need. For Claude Desktop, add this to its config (Settings > Developer > Edit Config):
+
+```json
+{
+  "mcpServers": {
+    "listriver": {
+      "command": "uvx",
+      "args": ["listriver-mcp"],
+      "env": { "LISTRIVER_API_KEY": "lr_key_..." }
+    }
+  }
+}
+```
 
 ---
 

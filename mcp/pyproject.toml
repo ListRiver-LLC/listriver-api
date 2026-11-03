@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "listriver-mcp"
+version = "0.1.0"
+description = "MCP server for ListRiver: let Claude and other AI assistants search new U.S. businesses from state registries."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "ListRiver LLC", email = "support@listriver.com" }]
+requires-python = ">=3.10"
+dependencies = ["mcp>=2.3,<3", "listriver>=0.1.0"]
+keywords = ["mcp", "model context protocol", "claude", "business data", "secretary of state", "new businesses", "b2b leads", "kyb"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Office/Business",
+]
+
+[project.scripts]
+listriver-mcp = "listriver_mcp.server:main"
+
+[project.urls]
+Homepage = "https://listriver.com/api-docs"
+Source = "https://github.com/ListRiver-LLC/listriver-api"
+"Get a free API key" = "https://listriver.com/Account/ApiSignUp.aspx"
+
+[tool.setuptools]
+packages = ["listriver_mcp"]
