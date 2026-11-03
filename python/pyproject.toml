@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "listriver"
+version = "0.1.0"
+description = "Python client for the ListRiver Business Data API: new LLCs and corporations from U.S. state business registries."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "ListRiver LLC", email = "support@listriver.com" }]
+requires-python = ">=3.8"
+dependencies = ["requests>=2.20"]
+keywords = ["business data", "secretary of state", "business registry", "new businesses", "LLC", "b2b leads", "firmographics", "kyb", "api"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Office/Business",
+]
+
+[project.urls]
+Homepage = "https://listriver.com/api-docs"
+Documentation = "https://listriver.com/api-docs"
+Source = "https://github.com/ListRiver-LLC/listriver-api"
+"Get a free API key" = "https://listriver.com/Account/ApiSignUp.aspx"
+
+[tool.setuptools]
+packages = ["listriver"]

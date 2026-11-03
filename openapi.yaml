@@ -1,0 +1,239 @@
+openapi: 3.0.3
+info:
+  title: ListRiver Business Data API
+  version: "1.0"
+  description: |
+    Active U.S. businesses from official state business registries (Secretary of State filings), as JSON.
+    Filter by state, city, county, ZIP, NAICS, entity type, formation month and whether a phone or email is on file.
+
+    - Free key with 500 records a month: https://listriver.com/Account/ApiSignUp.aspx
+    - Full documentation, recipes and examples in five languages: https://listriver.com/api-docs
+
+    Only records returned by `action=records` count against your records, and each record counts every time it is
+    returned. `action=states` and `action=count` are free.
+  contact:
+    name: ListRiver support
+    email: support@listriver.com
+    url: https://listriver.com/api-docs
+  license:
+    name: ListRiver API agreement (data); MIT (this file)
+    url: https://listriver.com/legal/listriver-api-eula.txt
+servers:
+  - url: https://listriver.com/api
+security:
+  - ApiKey: []
+paths:
+  /data.ashx:
+    get:
+      operationId: query
+      summary: List states, count matching records (free), or get records
+      description: |
+        One endpoint, three actions chosen by the `action` parameter:
+
+        - `states`: available states and record counts per formation window (free)
+        - `count`: how many records match the filters, per state (free, approximate, 20 calls a minute)
+        - `records`: up to 1,000 matching records per call; pass `cursor` from the answer to get the next page
+
+        Formation dates are month-level, so formation windows are whole calendar months (UTC).
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema: { type: string, enum: [states, count, records] }
+        - name: states
+          in: query
+          description: Comma-separated registration states (e.g. `FL,TX`). Leave out for every available state.
+          schema: { type: string, example: FL }
+        - name: city
+          in: query
+          description: Comma-separated business address cities. Needs `states`.
+          schema: { type: string, example: MIAMI }
+        - name: county
+          in: query
+          description: Comma-separated counties, as a bare name (applied to each state) or `ST:NAME`. Needs `states`.
+          schema: { type: string, example: MIAMI-DADE }
+        - name: zip
+          in: query
+          description: Comma-separated 5-digit ZIP codes or 3-digit ZIP prefixes. Needs `states`.
+          schema: { type: string, example: "33139,331" }
+        - name: naics
+          in: query
+          description: Comma-separated NAICS code prefixes, 2 to 6 digits (e.g. `23` = construction). Any of them matches.
+          schema: { type: string, example: "23" }
+        - name: entityType
+          in: query
+          description: Comma-separated entity groups.
+          schema: { type: string, example: "LLC,CORP" }
+        - name: hasPhone
+          in: query
+          description: "`1` = only businesses with a phone number on file."
+          schema: { type: integer, enum: [0, 1] }
+        - name: hasEmail
+          in: query
+          description: "`1` = only businesses with an email on file (`onlyEmail=1` also works)."
+          schema: { type: integer, enum: [0, 1] }
+        - name: formedWithin
+          in: query
+          description: Formed in the current month or the N months before it.
+          schema: { type: integer, minimum: 1, maximum: 120, example: 3 }
+        - name: formedFrom
+          in: query
+          description: First formation month, `YYYY-MM`.
+          schema: { type: string, pattern: '^\d{4}-\d{2}$', example: "2026-06" }
+        - name: formedTo
+          in: query
+          description: Last formation month, `YYYY-MM` (included).
+          schema: { type: string, pattern: '^\d{4}-\d{2}$', example: "2026-09" }
+        - name: preset
+          in: query
+          description: Shortcut formation window (default `recent` = this month or last). Ignored when `formedWithin`, `formedFrom` or `formedTo` is given.
+          schema: { type: string, enum: [recent, year, all], default: recent }
+        - name: limit
+          in: query
+          description: Records per call (`records` only).
+          schema: { type: integer, minimum: 1, maximum: 1000, default: 1000 }
+        - name: cursor
+          in: query
+          description: The `cursor` (or a saved `resume`) from an earlier `records` answer, with the same filters.
+          schema: { type: string, example: FL.6604750 }
+        - name: email
+          in: query
+          description: "`0` leaves the email field empty (`records` only)."
+          schema: { type: integer, enum: [0, 1], default: 1 }
+      responses:
+        "200":
+          description: States, a count, or a page of records, depending on `action`.
+          headers:
+            X-ListRiver-Monthly-Allowance:
+              description: Records included this month (free key) or billing period (plan). `records` only.
+              schema: { type: integer }
+            X-ListRiver-Monthly-Remaining:
+              description: Of those, how many are left after this call.
+              schema: { type: integer }
+            X-ListRiver-Allowance-Resets:
+              description: When they reset (UTC, ISO 8601).
+              schema: { type: string, format: date-time }
+            X-ListRiver-Credits-Remaining:
+              description: Prepaid pack records left.
+              schema: { type: integer }
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/StatesAnswer'
+                  - $ref: '#/components/schemas/CountAnswer'
+                  - $ref: '#/components/schemas/RecordsAnswer'
+        "400": { $ref: '#/components/responses/Error' }
+        "401": { $ref: '#/components/responses/Error' }
+        "403": { $ref: '#/components/responses/Error' }
+        "429": { $ref: '#/components/responses/Error' }
+        "500": { $ref: '#/components/responses/Error' }
+        "503":
+          description: Busy (usually just after an update). Nothing was charged; retry after `Retry-After` seconds.
+          headers:
+            Retry-After: { schema: { type: integer } }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: "Self-serve keys start with `lr_key_` (free at https://listriver.com/Account/ApiSignUp.aspx); AWS Marketplace keys with `lr_live_`."
+  responses:
+    Error:
+      description: An error. The message says what went wrong and, for 429, how to get more records.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    Error:
+      type: object
+      properties:
+        ok: { type: boolean, example: false }
+        error: { type: string }
+    StatesAnswer:
+      type: object
+      properties:
+        ok: { type: boolean }
+        states:
+          type: array
+          items:
+            type: object
+            properties:
+              code: { type: string, example: FL }
+              name: { type: string, example: Florida }
+              recent: { type: integer, description: Formed this month or last }
+              year: { type: integer, description: Formed in the last 12 months }
+              all: { type: integer, description: Every active business on file }
+    CountAnswer:
+      type: object
+      properties:
+        ok: { type: boolean }
+        total: { type: integer, example: 6120 }
+        states:
+          type: array
+          items:
+            type: object
+            properties:
+              code: { type: string }
+              count: { type: integer }
+        approximate:
+          type: boolean
+          description: A business filed under two of the chosen states is counted in each; `records` returns it once.
+    RecordsAnswer:
+      type: object
+      properties:
+        ok: { type: boolean }
+        rows:
+          type: array
+          items: { $ref: '#/components/schemas/Business' }
+        cursor:
+          type: string
+          nullable: true
+          description: Pass as `cursor` for the next page; null on the last page.
+        resume:
+          type: string
+          nullable: true
+          description: Position after the last record returned (also on the last page). Save it and pass it later as `cursor` to get only records added since.
+    Business:
+      type: object
+      description: Fields are null when the state doesn't publish them or ListRiver doesn't have them; nothing is estimated.
+      properties:
+        businessName: { type: string, description: Legal name on the state registry }
+        dbaName: { type: string, nullable: true, description: Trade name (doing business as) }
+        entityType: { type: string, nullable: true, description: As the state words it }
+        status: { type: string, nullable: true, example: ACTIVE }
+        standing: { type: string, nullable: true, description: "Good-standing status, where published" }
+        formed: { type: string, nullable: true, example: "2026-08", description: Month formed or registered (YYYY-MM) }
+        registrationState: { type: string, example: FL }
+        stateFilingNumber: { type: string, description: The state's filing (entity) number }
+        ein: { type: string, nullable: true, example: "12-3456789" }
+        address: { type: string, nullable: true }
+        address2: { type: string, nullable: true }
+        city: { type: string, nullable: true }
+        state: { type: string, nullable: true }
+        zip: { type: string, nullable: true }
+        county: { type: string, nullable: true }
+        mailingAddress: { type: string, nullable: true }
+        mailingAddress2: { type: string, nullable: true }
+        mailingCity: { type: string, nullable: true }
+        mailingState: { type: string, nullable: true }
+        mailingZip: { type: string, nullable: true }
+        phone: { type: string, nullable: true, description: "U.S. numbers as (NNN) NNN-NNNN" }
+        email: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+        registeredAgent: { type: string, nullable: true }
+        naics: { type: string, nullable: true }
+        industry: { type: string, nullable: true, description: NAICS description }
+        womanOwned: { type: boolean }
+        veteranOwned: { type: boolean }
+        minorityOwned: { type: boolean }
+        disabilityOwned: { type: boolean }
+        lgbtqiOwned: { type: boolean }
+        latitude: { type: number, nullable: true }
+        longitude: { type: number, nullable: true }
+        registryDataAsOf: { type: string, nullable: true, example: "2026-08-27", description: Date of the state file the record was last taken from }
+        listriverId: { type: string, example: FL-L26000446708, description: Stable id (registration state + filing number); use it to de-duplicate }
