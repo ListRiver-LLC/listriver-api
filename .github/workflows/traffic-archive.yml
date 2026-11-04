@@ -1,0 +1,106 @@
+name: Archive repo traffic
+
+on:
+  schedule:
+    - cron: "17 9 * * *"   # daily, 09:17 UTC
+  workflow_dispatch:        # lets you run it by hand from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Switch to traffic-stats branch
+        run: |
+          git config user.name  "traffic-bot"
+          git config user.email "traffic-bot@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin traffic-stats; then
+            git fetch origin traffic-stats
+            git checkout traffic-stats
+          else
+            git checkout --orphan traffic-stats
+            git rm -rf . > /dev/null 2>&1 || true
+          fi
+          mkdir -p traffic
+
+      - name: Pull traffic and merge into CSVs
+        env:
+          GH_TOKEN: ${{ secrets.TRAFFIC_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'EOF'
+          import os, csv, json, urllib.request, datetime
+
+          token = os.environ["GH_TOKEN"]
+          repo  = os.environ["REPO"]
+          today = datetime.date.today().isoformat()
+
+          def get(path):
+              req = urllib.request.Request(
+                  f"https://api.github.com/repos/{repo}{path}",
+                  headers={"Authorization": f"Bearer {token}",
+                           "Accept": "application/vnd.github+json",
+                           "X-GitHub-Api-Version": "2022-11-28"})
+              with urllib.request.urlopen(req) as r:
+                  return json.load(r)
+
+          def merge_daily(fname, items):
+              path = f"traffic/{fname}"
+              rows = {}
+              if os.path.exists(path):
+                  with open(path) as f:
+                      for r in csv.DictReader(f):
+                          rows[r["date"]] = r
+              for it in items:
+                  d = it["timestamp"][:10]
+                  rows[d] = {"date": d, "count": it["count"], "uniques": it["uniques"]}
+              with open(path, "w", newline="") as f:
+                  w = csv.DictWriter(f, fieldnames=["date", "count", "uniques"])
+                  w.writeheader()
+                  for d in sorted(rows):
+                      w.writerow(rows[d])
+
+          def append_snapshot(fname, fields, rows):
+              path = f"traffic/{fname}"
+              existing = []
+              if os.path.exists(path):
+                  with open(path) as f:
+                      existing = [r for r in csv.DictReader(f) if r["snapshot_date"] != today]
+              with open(path, "w", newline="") as f:
+                  w = csv.DictWriter(f, fieldnames=["snapshot_date"] + fields)
+                  w.writeheader()
+                  for r in existing: w.writerow(r)
+                  for r in rows: w.writerow({"snapshot_date": today, **{k: r.get(k, "") for k in fields}})
+
+          merge_daily("views.csv",  get("/traffic/views?per=day")["views"])
+          merge_daily("clones.csv", get("/traffic/clones?per=day")["clones"])
+
+          append_snapshot("referrers.csv", ["referrer", "count", "uniques"],
+                          get("/traffic/popular/referrers"))
+          append_snapshot("paths.csv", ["path", "title", "count", "uniques"],
+                          get("/traffic/popular/paths"))
+
+          repo_info = get("")
+          append_snapshot("repo.csv", ["stars", "forks", "watchers", "open_issues"],
+                          [{"stars": repo_info["stargazers_count"],
+                            "forks": repo_info["forks_count"],
+                            "watchers": repo_info["subscribers_count"],
+                            "open_issues": repo_info["open_issues_count"]}])
+          EOF
+
+      - name: Commit if changed
+        run: |
+          git add traffic
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Traffic snapshot $(date -u +%F)"
+            git push origin traffic-stats
+          fi
