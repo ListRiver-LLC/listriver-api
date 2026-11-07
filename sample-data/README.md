@@ -8,7 +8,7 @@ A small sample of real records, in the same shape the API returns, so you can ju
 Emails are left out of the sample. Every other field is exactly as the API delivers it; fields are empty (`null` in JSON)
 where the state doesn't publish them or ListRiver doesn't have them.
 
-This is a sample, not a full file. For the complete data, [get a free API key](https://listriver.com/Account/ApiSignUp.aspx)
+This is a sample, not a full file. For the complete data, [get a free API key](https://listriver.com/Account/ApiSignUp.aspx?utm_source=github&utm_medium=referral&utm_campaign=sample-data)
 (500 records a month) or see [listriver.com](https://listriver.com).
 
 The records are covered by the [ListRiver API agreement](https://listriver.com/legal/listriver-api-eula.txt): for your own

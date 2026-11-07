@@ -4,8 +4,8 @@
 New LLCs, corporations, nonprofits and partnerships, filtered by state, city, county, ZIP, NAICS industry, entity type,
 formation month, and whether a phone or email is on file.
 
-- **Free key: 500 records a month**, no card needed: [get one here](https://listriver.com/Account/ApiSignUp.aspx)
-- **Full documentation** with a live "Try it" panel and examples in cURL, Python, JavaScript, C# and PHP: [listriver.com/api-docs](https://listriver.com/api-docs)
+- **Free key: 500 records a month**, no card needed: [get one here](https://listriver.com/Account/ApiSignUp.aspx?utm_source=github&utm_medium=referral&utm_campaign=readme)
+- **Full documentation** with a live "Try it" panel and examples in cURL, Python, JavaScript, C# and PHP: [listriver.com/api-docs](https://listriver.com/api-docs?utm_source=github&utm_medium=referral&utm_campaign=readme)
 - **Python client:** `pip install listriver` ([source](python/))
 - **OpenAPI 3 spec:** [openapi.yaml](openapi.yaml) (import into Postman, Insomnia, Swagger UI or an AI agent)
 - **MCP server** for Claude and other AI assistants, source in [`mcp/`](mcp/): `uvx listriver-mcp`
@@ -17,7 +17,7 @@ KYB and business verification, market sizing, and B2B prospecting by industry an
 
 ## Quick start (2 minutes)
 
-1. [Create a free API account](https://listriver.com/Account/ApiSignUp.aspx) and click the link in the confirmation email.
+1. [Create a free API account](https://listriver.com/Account/ApiSignUp.aspx?utm_source=github&utm_medium=referral&utm_campaign=readme) and click the link in the confirmation email.
 2. On the API page, click **Get my free API key** and copy it.
 3. Count a search (free), then pull the records:
 
@@ -69,7 +69,7 @@ for business in lr.records(**search, max_records=100):
     print(business["businessName"], business["phone"])
 ```
 
-More: [examples/](examples/) (Python, JavaScript, curl) and the [recipes](https://listriver.com/api-docs#recipes) (also C# and PHP).
+More: [examples/](examples/) (Python, JavaScript, curl) and the [recipes](https://listriver.com/api-docs?utm_source=github&utm_medium=referral&utm_campaign=readme#recipes) (also C# and PHP).
 
 ---
 
@@ -159,7 +159,7 @@ Formation dates are month-level (registries publish the month), so windows are w
 Only records returned count, and **each record counts every time it is returned**: overlapping or repeated searches
 count again. Count first (free), save the `cursor` or `resume` position to carry on later, and use `listriverId` to
 de-duplicate. Packs and plans are on your [API page](https://listriver.com/Account/Api.aspx). Current prices are always
-on [listriver.com/api-docs](https://listriver.com/api-docs).
+on [listriver.com/api-docs](https://listriver.com/api-docs?utm_source=github&utm_medium=referral&utm_campaign=readme).
 
 ## Keeping a feed up to date
 

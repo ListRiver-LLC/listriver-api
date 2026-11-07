@@ -1,6 +1,6 @@
 # listriver (Python)
 
-Python client for the [ListRiver Business Data API](https://listriver.com/api-docs): active U.S. businesses from official state business registries.
+Python client for the [ListRiver Business Data API](https://listriver.com/api-docs?utm_source=pypi&utm_medium=referral&utm_campaign=listriver): active U.S. businesses from official state business registries.
 
 ```
 pip install listriver
@@ -9,7 +9,7 @@ pip install listriver
 ```python
 from listriver import Client
 
-lr = Client("lr_key_...")          # free key: https://listriver.com/Account/ApiSignUp.aspx
+lr = Client("lr_key_...")          # free key: https://listriver.com/Account/ApiSignUp.aspx?utm_source=pypi&utm_medium=referral&utm_campaign=listriver
 
 # Free: how many records a search would use
 print(lr.count(states="FL", city="MIAMI", has_phone=True, formed_within=3))

@@ -21,10 +21,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://listriver.com/api-docs"
-Documentation = "https://listriver.com/api-docs"
+Homepage = "https://listriver.com/api-docs?utm_source=pypi&utm_medium=referral&utm_campaign=listriver"
+Documentation = "https://listriver.com/api-docs?utm_source=pypi&utm_medium=referral&utm_campaign=listriver"
 Source = "https://github.com/ListRiver-LLC/listriver-api"
-"Get a free API key" = "https://listriver.com/Account/ApiSignUp.aspx"
+"Get a free API key" = "https://listriver.com/Account/ApiSignUp.aspx?utm_source=pypi&utm_medium=referral&utm_campaign=listriver"
 
 [tool.setuptools]
 packages = ["listriver"]

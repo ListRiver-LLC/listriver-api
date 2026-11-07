@@ -1,7 +1,7 @@
 # Examples
 
-Runnable examples for the [ListRiver Business Data API](https://listriver.com/api-docs). Replace `YOUR_KEY` with your key
-([get a free one](https://listriver.com/Account/ApiSignUp.aspx): 500 records a month).
+Runnable examples for the [ListRiver Business Data API](https://listriver.com/api-docs?utm_source=github&utm_medium=referral&utm_campaign=examples). Replace `YOUR_KEY` with your key
+([get a free one](https://listriver.com/Account/ApiSignUp.aspx?utm_source=github&utm_medium=referral&utm_campaign=examples): 500 records a month).
 
 | Example | What it does | Python | JavaScript (Node 18+) | curl |
 |---|---|---|---|---|
@@ -13,6 +13,6 @@ Runnable examples for the [ListRiver Business Data API](https://listriver.com/ap
 | with_the_client | The Miami search using the `listriver` Python package | [py](python/with_the_client.py) | | |
 
 Python examples need `pip install requests` (or `pip install listriver` for the last one). The curl `county_to_csv` example needs
-[jq](https://jqlang.github.io/jq/). C# and PHP versions of every example are on the [documentation page](https://listriver.com/api-docs#recipes).
+[jq](https://jqlang.github.io/jq/). C# and PHP versions of every example are on the [documentation page](https://listriver.com/api-docs?utm_source=github&utm_medium=referral&utm_campaign=examples#recipes).
 
 Every record returned counts against your records each time it is returned. Run `count_first` before a large pull.

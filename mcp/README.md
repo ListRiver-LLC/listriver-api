@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.ListRiver-LLC/listriver -->
 
 Lets Claude and other AI assistants search **new and active U.S. businesses from official state business registries**
-through [ListRiver](https://listriver.com/api-docs): new LLCs, corporations and nonprofits by state, city, county, ZIP,
+through [ListRiver](https://listriver.com/api-docs?utm_source=mcp-listing&utm_medium=referral&utm_campaign=listriver-mcp): new LLCs, corporations and nonprofits by state, city, county, ZIP,
 NAICS industry, entity type, formation month, and whether a phone or email is on file.
 
 Ask things like:
@@ -24,7 +24,7 @@ The assistant is told to count first and to ask only for as many businesses as y
 
 ## Setup
 
-1. Get a free API key (500 records a month): [listriver.com/Account/ApiSignUp.aspx](https://listriver.com/Account/ApiSignUp.aspx)
+1. Get a free API key (500 records a month): [listriver.com/Account/ApiSignUp.aspx](https://listriver.com/Account/ApiSignUp.aspx?utm_source=mcp-listing&utm_medium=referral&utm_campaign=listriver-mcp)
 2. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) (it runs the server with `uvx`, no other install needed).
 3. Add the server to your AI app.
 
@@ -73,6 +73,6 @@ or build the [Dockerfile](../Dockerfile) at the repository root: `docker build -
 - Phone, email, NAICS and county are on file for only part of the records, and coverage varies by state.
 - The data is for your own business use, not for resale or for credit, insurance, employment or housing decisions
   ([ListRiver API agreement](https://listriver.com/legal/listriver-api-eula.txt)).
-- More: [API documentation](https://listriver.com/api-docs) - [support@listriver.com](mailto:support@listriver.com)
+- More: [API documentation](https://listriver.com/api-docs?utm_source=mcp-listing&utm_medium=referral&utm_campaign=listriver-mcp) - [support@listriver.com](mailto:support@listriver.com)
 
 MIT license.
