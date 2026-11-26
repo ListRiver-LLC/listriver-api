@@ -89,3 +89,7 @@ snapshot_date,path,title,count,uniques
 2026-11-25,/ListRiver-LLC/listriver-api/blob/main/sample-data/README.md,/blob/main/sample-data/README.md,1,1
 2026-11-25,/ListRiver-LLC/listriver-api/tree/main,/tree/main,1,1
 2026-11-25,/ListRiver-LLC/listriver-api/tree/main/examples,/tree/main/examples,1,1
+2026-11-26,/ListRiver-LLC/listriver-api,Overview,22,9
+2026-11-26,/ListRiver-LLC/listriver-api/actions/workflows/traffic-archive.yml,/actions/workflows/traffic-archive.yml,2,1
+2026-11-26,/ListRiver-LLC/listriver-api/blob/main/README.md,/blob/main/README.md,1,1
+2026-11-26,/ListRiver-LLC/listriver-api/tree/main/sample-data,/tree/main/sample-data,1,1
